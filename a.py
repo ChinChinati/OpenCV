@@ -50,6 +50,7 @@ def processAruco(a):
         cv2.circle(a, (x,y),5, (255,0,0),-1)
         cv2.putText(a, str(markerId), (x, y-18),cv2.FONT_HERSHEY_COMPLEX, 1, (0,255,0),2,cv2.LINE_AA)
         p = 15 #padding
+        s1 = (math.sqrt((topleft[1]-y)**2 + (topleft[0]-x)**2))
         cropped = a[topleft[0]-p:bottomRight[0]+p, topleft[1]-p:bottomRight[1]+p]
-        return(cropped, markerId, angle, [topleft[0]-p,bottomRight[0]+p,topleft[1]-p,bottomRight[1]+p] )
+        return(cropped, markerId, angle, [topleft[0]-p,bottomRight[0]+p,topleft[1]-p,bottomRight[1]+p], [topleft, topRight, bottomRight, bottomleft])
        
