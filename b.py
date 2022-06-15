@@ -61,7 +61,7 @@ for c in cont:
         bottomleft =(int(bottomleft[0]), int(bottomleft[1]))
         bottomRight =(int(bottomRight[0]), int (bottomRight[1]))
         #print(topleft)
-        print(sq)
+        #print(sq)
         
         #sq is square no and box is the corresponding coordinates of corners of that square
         # x y is centre of square
@@ -77,24 +77,34 @@ for c in cont:
                 #topleft,bottomRight,topleft,bottomRight
                 aru_t = aru_t[crp[0]:crp[1], crp[2]:crp[3]] 
                 ar = a.processAruco(ar)[0]
+                #print(sq)
+
+                
 
                 x1 = ((topRight[0]+bottomRight[0])/2.0) 
                 y1 = ((topRight[1]+bottomRight[1])/2.0)
                 slope = (y1-y)/(x1-x)
                 angle = ((math.atan(slope))*180)/(np.pi)
-                print (angle)
+                o = int(2*(math.sqrt((y1-y)**2 + (x1-x)**2)))
+                aru_t=cv2.resize(aru_t, (o,o), interpolation= cv2.INTER_LINEAR)
+                ar=cv2.resize(ar, (o,o), interpolation= cv2.INTER_LINEAR)
+                #cv2.imshow("15",aru_t)
+                #cv2.waitKey(0)
+                #cv2.destroyAllWindows()
+                #print (o)
 
 
                 (h, w) = aru_t.shape[:2]
-                M = cv2.getRotationMatrix2D((w/2, h/2), -angle, 0.74)
-                aru_t = cv2.warpAffine(aru_t, M, (w, h),flags=cv2.INTER_LINEAR,borderMode=cv2.BORDER_TRANSPARENT)
-                ar = cv2.warpAffine(ar, M, (w, h))
-                aru_t=cv2.resize(aru_t, (300,300), interpolation= cv2.INTER_LINEAR)
 
-                #aru_t and ar are final aruco markers
-                #aru_t is same as ar just with transparency
+                M = cv2.getRotationMatrix2D(((w/2), (h/2)), -angle, 1)
+                aru_t = cv2.warpAffine(aru_t, M, (int(1.1*w), int(1.1*h)),flags=cv2.INTER_LINEAR,borderMode=cv2.BORDER_TRANSPARENT)
+                ar = cv2.warpAffine(ar, M, (int(1.1*w), int(1.1*h)))
 
-                img[ y-int(aru_t.shape[0]/2):y+int(aru_t.shape[0]/2),x-int(aru_t.shape[0]/2):x+int(aru_t.shape[0]/2)] = aru_t
+               
+                try:
+                 img[ y-int(aru_t.shape[0]/2):y+int(aru_t.shape[0]/2),x-int(aru_t.shape[0]/2):x+int(aru_t.shape[0]/2)] = aru_t
+                except:
+                    img[ y-int(aru_t.shape[0]/2):y+int(aru_t.shape[0]/2)+1,x-int(aru_t.shape[0]/2):x+int(aru_t.shape[0]/2)+1] = aru_t
 
 
 plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA))
