@@ -17,16 +17,18 @@ aa4 = cv2.imread("XD.png", -1)
 
 g = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 ret, thresh = cv2.threshold(g,230,255,cv2.THRESH_BINARY_INV)
+
+
 cont, h = cv2.findContours(thresh,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
 l=4
 r = 0.001
-i=0
+
 for c in cont:
     peri = cv2.arcLength(c,True)
     approx = cv2.approxPolyDP(c,peri*r,True)
     if len(approx) == l:
         approx = cv2.approxPolyDP(c,peri*0.1,True)
-        cv2.drawContours(img,[approx],-1,(255,0,0),3)
+        #cv2.drawContours(img,[approx],-1,(255,0,0),3)
         #All squares selected
         M = cv2.moments(c)
         #print(M)
@@ -38,6 +40,8 @@ for c in cont:
         rect = cv2.minAreaRect(c)
         box = cv2.boxPoints(rect)
         box = np.int0(box)
+        bx,by,bw,bh = cv2.boundingRect(c)
+        #cv2.rectangle(img,(bx,by),(bx+bw,by+bh),(0,0,0),5)
 
         #finding squares numbers
         if (img[y,x][0]) == 79 and (img[y,x][1]) == 209 and (img[y,x][2]) == 146 :
@@ -85,28 +89,43 @@ for c in cont:
                 y1 = ((topRight[1]+bottomRight[1])/2.0)
                 slope = (y1-y)/(x1-x)
                 angle = ((math.atan(slope))*180)/(np.pi)
-                o = int(2*(math.sqrt((y1-y)**2 + (x1-x)**2)))
-                aru_t=cv2.resize(aru_t, (o,o), interpolation= cv2.INTER_LINEAR)
-                ar=cv2.resize(ar, (o,o), interpolation= cv2.INTER_LINEAR)
-                #cv2.imshow("15",aru_t)
-                #cv2.waitKey(0)
-                #cv2.destroyAllWindows()
-                #print (o)
-
 
                 (h, w) = aru_t.shape[:2]
+                if(sq==1):
+                    scale = 0.877
+                if(sq==2):
+                    scale = 1.03
+                if(sq==3):
+                    scale = 0.76
+                if(sq==4):
+                    scale = 0.76
 
-                M = cv2.getRotationMatrix2D(((w/2), (h/2)), -angle, 1)
-                aru_t = cv2.warpAffine(aru_t, M, (int(1.1*w), int(1.1*h)),flags=cv2.INTER_LINEAR,borderMode=cv2.BORDER_TRANSPARENT)
-                ar = cv2.warpAffine(ar, M, (int(1.1*w), int(1.1*h)))
+                M = cv2.getRotationMatrix2D(((w/2), (h/2)), -angle, scale)
+                aru_t = cv2.warpAffine(aru_t, M, (int(w), int(h)),flags=cv2.INTER_LINEAR,borderMode=cv2.BORDER_TRANSPARENT)
+                aru_t=cv2.resize(aru_t, (int(bw),int(bh)), interpolation= cv2.INTER_LINEAR)
+                ar = cv2.warpAffine(ar, M, (int(w), int(h)))
+                ar=cv2.resize(ar, (int(bw),int(bh)), interpolation= cv2.INTER_LINEAR)
+                
+                
+#-----------------------------------------------------------------
+                cor = a.aic(ar)[1]
+                inversemask = np.zeros(aru_t.shape,np.uint8)
+                #print('hehe')
+                
+                cor = cor.reshape((4,2))
+                #print(cor)
+                cv2.fillPoly(inversemask,[cor],(255,255,255))
+                maski = cv2.bitwise_not(inversemask)
 
-               
-                try:
-                 img[ y-int(aru_t.shape[0]/2):y+int(aru_t.shape[0]/2),x-int(aru_t.shape[0]/2):x+int(aru_t.shape[0]/2)] = aru_t
-                except:
-                    img[ y-int(aru_t.shape[0]/2):y+int(aru_t.shape[0]/2)+1,x-int(aru_t.shape[0]/2):x+int(aru_t.shape[0]/2)+1] = aru_t
+                roi = img[ by:by+bh,bx:bx+bw]
+                background = cv2.bitwise_and(roi , maski )
+                frontimg = cv2.bitwise_and(aru_t, inversemask)
+
+                aru_t = cv2.add(frontimg,background)
+                
+                img[by:by+bh,bx:bx+bw] = aru_t
+                
 
 
 plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA))
 plt.show()
-
