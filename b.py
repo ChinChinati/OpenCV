@@ -104,8 +104,6 @@ for c in cont:
                 
                 aru_t = aru_t[dx:dx+dw,dy:dy+dh]
                 ar = ar[dx:dx+dw,dy:dy+dh]
-                plt.imshow(cv2.cvtColor(ar, cv2.COLOR_BGRA2RGBA))
-                plt.show()
                 aru_t=cv2.resize(aru_t, (int(bw),int(bh)), interpolation= cv2.INTER_LINEAR)
                 ar=cv2.resize(ar, (int(bw),int(bh)), interpolation= cv2.INTER_LINEAR)
                 
