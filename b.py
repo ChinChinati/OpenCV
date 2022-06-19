@@ -91,20 +91,25 @@ for c in cont:
                 angle = ((math.atan(slope))*180)/(np.pi)
 
                 (h, w) = aru_t.shape[:2]
-                if(sq==1):
-                    scale = 0.877
-                if(sq==2):
-                    scale = 1.03
-                if(sq==3):
-                    scale = 0.76
-                if(sq==4):
-                    scale = 0.76
-
+                scale = 0.74
+                
                 M = cv2.getRotationMatrix2D(((w/2), (h/2)), -angle, scale)
                 aru_t = cv2.warpAffine(aru_t, M, (int(w), int(h)),flags=cv2.INTER_LINEAR,borderMode=cv2.BORDER_TRANSPARENT)
-                aru_t=cv2.resize(aru_t, (int(bw),int(bh)), interpolation= cv2.INTER_LINEAR)
                 ar = cv2.warpAffine(ar, M, (int(w), int(h)))
+
+                cor = a.aic(ar)[1]
+                cor = cor.reshape((4,2))
+                print(cor)
+                dx,dy,dw,dh = cv2.boundingRect(cor)
+                
+                aru_t = aru_t[dx:dx+dw,dy:dy+dh]
+                ar = ar[dx:dx+dw,dy:dy+dh]
+                plt.imshow(cv2.cvtColor(ar, cv2.COLOR_BGRA2RGBA))
+                plt.show()
+                aru_t=cv2.resize(aru_t, (int(bw),int(bh)), interpolation= cv2.INTER_LINEAR)
                 ar=cv2.resize(ar, (int(bw),int(bh)), interpolation= cv2.INTER_LINEAR)
+                
+                
                 
                 
 #-----------------------------------------------------------------
